@@ -1,0 +1,82 @@
+.example {/*親div*/
+  position: relative;/*相対配置*/
+  
+  }
+  .header{
+    font-family: 'Sacramento', cursive;
+    padding-left: 3%;
+    font-size: 50px;
+  }
+  
+  .circle{
+  color: black;
+
+  }
+
+
+  @keyframes typing { from { width: 0; } }
+  @keyframes caret { 50% { border-color: transparent; } }
+  
+
+  .example p {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    @import url('https://fonts.googleapis.com/css?family=Sacramento');
+    font-family: 'Sacramento', cursive;
+    -ms-transform: translate(-50%,-50%);
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+width: 11ch;
+border-right: none;
+overflow: hidden;
+font-size: 7em;
+white-space: nowrap ;
+animation: typing 3s steps(20, end), caret .3s step-end infinite;
+}
+
+.example2 p {
+  font-family: 'Sacramento', cursive;
+
+
+}
+
+
+.example img {
+  width: 45%;
+  }
+
+  .type-textbound {
+    font-size: 60px;
+    text-align: center;
+  }
+
+
+  li{
+   display:inline;
+   
+ }
+
+ .m-navigationToggle {
+   padding-top: 0%;
+  justify-content: space-around;
+  font-size: 13px;
+  color: #656c6e;
+  font-family: "Gill Sans Std Book", sans-serif;
+  letter-spacing: 0.1em;
+  background-color: #fff;
+  background-size: 15px 11px;
+  background-position: 93% 50%;
+  padding-left: 7%;
+  height: 45px;
+  line-height: 45px;
+}
+.m-navigationToggle ul li{
+  margin-left: 95px;
+}
+
+.col-lg-4 {
+    top: 50%;
+    left: 40%;
+}
+
