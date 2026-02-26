@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 16px;
+      color: #333;
+      background: #fff;
+    }
+    h2 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+    .section {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #555;
+    }
+    .description {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .file-upload {
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      margin-bottom: 8px;
+    }
+    .file-upload:hover {
+      border-color: #18a0fb;
+    }
+    .file-upload.active {
+      border-color: #18a0fb;
+      background: #f0f8ff;
+    }
+    .file-upload input[type="file"] {
+      display: none;
+    }
+    .file-upload-text {
+      font-size: 13px;
+      color: #666;
+    }
+    .file-info {
+      font-size: 11px;
+      color: #18a0fb;
+      margin-top: 4px;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+    .row .field {
+      flex: 1;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .preview {
+      background: #f5f5f5;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 16px;
+      max-height: 140px;
+      overflow-y: auto;
+      font-size: 11px;
+      display: none;
+    }
+    .preview table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .preview th, .preview td {
+      text-align: left;
+      padding: 3px 6px;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 11px;
+    }
+    .preview th {
+      font-weight: 600;
+      color: #555;
+    }
+    .buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+    .btn-primary {
+      background: #18a0fb;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #0d8ce0;
+    }
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    .status {
+      font-size: 12px;
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .status.error {
+      background: #ffeaea;
+      color: #d32f2f;
+      display: block;
+    }
+    .status.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      display: block;
+    }
+    .status.progress {
+      background: #e3f2fd;
+      color: #1565c0;
+      display: block;
+    }
+    .instructions {
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 11px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .instructions strong {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎨 Banner Generator</h2>
+
+  <div class="instructions">
+    <strong>使い方:</strong><br>
+    1. Figma上でテンプレートとなるフレームを選択<br>
+    2. 見出し(headlines.csv)と説明文(descriptions.csv)のCSVをアップロード<br>
+    3.「バナーを生成」をクリック<br>
+    ※ テキストノードはフォントサイズで自動判定（大=見出し、次=説明文）
+  </div>
+
+  <div id="status" class="status"></div>
+
+  <div class="section">
+    <label>見出しCSV (headlines.csv)</label>
+    <p class="description">カラム: id, headline</p>
+    <div class="file-upload" id="headline-drop">
+      <input type="file" id="headline-file" accept=".csv">
+      <div class="file-upload-text">クリックまたはドラッグ&ドロップ</div>
+      <div class="file-info" id="headline-info"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <label>説明文CSV (descriptions.csv)</label>
+    <p class="description">カラム: id, description</p>
+    <div class="file-upload" id="description-drop">
+      <input type="file" id="description-file" accept=".csv">
+      <div class="file-upload-text">クリックまたはドラッグ&ドロップ</div>
+      <div class="file-info" id="description-info"></div>
+    </div>
+  </div>
+
+  <div id="preview" class="preview"></div>
+
+  <div class="section">
+    <div class="row">
+      <div class="field">
+        <label>列数</label>
+        <input type="number" id="columns" value="5" min="1" max="20">
+      </div>
+      <div class="field">
+        <label>間隔 (px)</label>
+        <input type="number" id="gap" value="40" min="0" max="500">
+      </div>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <button class="btn-secondary" id="cancel-btn">キャンセル</button>
+    <button class="btn-primary" id="generate-btn" disabled>バナーを生成</button>
+  </div>
+
+  <script>
+    let headlineData = [];
+    let descriptionData = [];
+
+    // CSVパーサー
+    function parseCSV(text) {
+      const lines = text.trim().split('\n');
+      if (lines.length < 2) return [];
+
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const rows = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        const row = {};
+        headers.forEach((header, index) => {
+          row[header] = values[index] || '';
+        });
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    // ファイル読み込み
+    function readFile(file, callback) {
+      const reader = new FileReader();
+      reader.onload = (e) => callback(e.target.result);
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    // 見出しCSV
+    const headlineFileInput = document.getElementById('headline-file');
+    const headlineDrop = document.getElementById('headline-drop');
+
+    headlineDrop.addEventListener('click', () => headlineFileInput.click());
+    headlineFileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        readFile(e.target.files[0], (text) => {
+          headlineData = parseCSV(text);
+          document.getElementById('headline-info').textContent =
+            `${headlineData.length}件の見出しを読み込みました`;
+          headlineDrop.classList.add('active');
+          updatePreview();
+          checkReady();
+        });
+      }
+    });
+
+    // 説明文CSV
+    const descriptionFileInput = document.getElementById('description-file');
+    const descriptionDrop = document.getElementById('description-drop');
+
+    descriptionDrop.addEventListener('click', () => descriptionFileInput.click());
+    descriptionFileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        readFile(e.target.files[0], (text) => {
+          descriptionData = parseCSV(text);
+          document.getElementById('description-info').textContent =
+            `${descriptionData.length}件の説明文を読み込みました`;
+          descriptionDrop.classList.add('active');
+          updatePreview();
+          checkReady();
+        });
+      }
+    });
+
+    // プレビュー更新
+    function updatePreview() {
+      const preview = document.getElementById('preview');
+      if (headlineData.length === 0 && descriptionData.length === 0) {
+        preview.style.display = 'none';
+        return;
+      }
+
+      const count = Math.min(headlineData.length, descriptionData.length, 5);
+      let html = '<table><tr><th>#</th><th>見出し</th><th>説明文</th></tr>';
+      for (let i = 0; i < count; i++) {
+        const headline = headlineData[i] ? (headlineData[i].headline || '') : '';
+        const description = descriptionData[i] ? (descriptionData[i].description || '') : '';
+        html += `<tr><td>${i + 1}</td><td>${headline}</td><td>${description}</td></tr>`;
+      }
+      if (Math.min(headlineData.length, descriptionData.length) > 5) {
+        html += `<tr><td colspan="3">... 他 ${Math.min(headlineData.length, descriptionData.length) - 5}件</td></tr>`;
+      }
+      html += '</table>';
+      preview.innerHTML = html;
+      preview.style.display = 'block';
+    }
+
+    // 生成ボタンの有効/無効を切り替え
+    function checkReady() {
+      const btn = document.getElementById('generate-btn');
+      btn.disabled = !(headlineData.length > 0 && descriptionData.length > 0);
+    }
+
+    // ステータス表示
+    function showStatus(type, message) {
+      const status = document.getElementById('status');
+      status.className = 'status ' + type;
+      status.textContent = message;
+    }
+
+    // バナー生成
+    document.getElementById('generate-btn').addEventListener('click', () => {
+      const columns = parseInt(document.getElementById('columns').value) || 5;
+      const gap = parseInt(document.getElementById('gap').value) || 40;
+
+      // 見出しと説明文を結合
+      const count = Math.min(headlineData.length, descriptionData.length);
+      const data = [];
+      for (let i = 0; i < count; i++) {
+        data.push({
+          headline: headlineData[i].headline || '',
+          description: descriptionData[i].description || ''
+        });
+      }
+
+      showStatus('progress', `${count}件のバナーを生成中...`);
+
+      parent.postMessage({
+        pluginMessage: {
+          type: 'generate',
+          data: data,
+          columns: columns,
+          gap: gap
+        }
+      }, '*');
+    });
+
+    // キャンセル
+    document.getElementById('cancel-btn').addEventListener('click', () => {
+      parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
+    });
+
+    // プラグインからのメッセージ受信
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === 'error') {
+        showStatus('error', msg.message);
+      } else if (msg.type === 'success') {
+        showStatus('success', msg.message);
+      } else if (msg.type === 'progress') {
+        showStatus('progress', msg.message);
+      }
+    };
+  </script>
+</body>
+</html>
