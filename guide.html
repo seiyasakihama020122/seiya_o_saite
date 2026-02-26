@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>広告バナー一括生成ガイド - 初心者向け手順書</title>
+  <style>
+    :root {
+      --primary: #5B4FD6;
+      --primary-light: #EDE9FE;
+      --accent: #F59E0B;
+      --accent-light: #FEF3C7;
+      --success: #10B981;
+      --success-light: #D1FAE5;
+      --danger: #EF4444;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #1E293B;
+      --text-sub: #64748B;
+      --border: #E2E8F0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+    }
+
+    /* ========== HEADER ========== */
+    .hero {
+      background: linear-gradient(135deg, #5B4FD6 0%, #8B5CF6 50%, #A78BFA 100%);
+      color: #fff;
+      padding: 60px 20px 50px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 32px; margin-bottom: 12px; }
+    .hero p { font-size: 16px; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+    .hero .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 4px 16px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* ========== LAYOUT ========== */
+    .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+    .section { margin: 40px 0; }
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 3px solid var(--primary);
+      display: inline-block;
+    }
+
+    /* ========== OVERVIEW FLOW ========== */
+    .flow-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 30px 0;
+    }
+    .flow-box {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+      min-width: 140px;
+      position: relative;
+    }
+    .flow-box .flow-icon { font-size: 32px; display: block; margin-bottom: 6px; }
+    .flow-box .flow-label { font-size: 13px; font-weight: 600; color: var(--text); }
+    .flow-box .flow-sub { font-size: 11px; color: var(--text-sub); }
+    .flow-box.active { border-color: var(--primary); background: var(--primary-light); }
+    .flow-arrow { font-size: 24px; color: var(--primary); font-weight: bold; }
+
+    /* ========== STEP CARD ========== */
+    .step-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border-left: 5px solid var(--primary);
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .step-number {
+      background: var(--primary);
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-title { font-size: 18px; font-weight: 700; }
+    .step-time {
+      font-size: 12px;
+      background: var(--accent-light);
+      color: #B45309;
+      padding: 2px 10px;
+      border-radius: 10px;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ========== TERMINAL ========== */
+    .terminal {
+      background: #1E1E2E;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 16px 0;
+      font-family: "SF Mono", "Fira Code", monospace;
+    }
+    .terminal-bar {
+      background: #313244;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .terminal-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .terminal-dot.red { background: #F38BA8; }
+    .terminal-dot.yellow { background: #F9E2AF; }
+    .terminal-dot.green { background: #A6E3A1; }
+    .terminal-label {
+      color: #A6ADC8;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+    .terminal-body {
+      padding: 16px;
+      font-size: 13px;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+    .terminal-body code {
+      color: #CDD6F4;
+    }
+    .terminal-body .prompt { color: #A6E3A1; }
+    .terminal-body .comment { color: #6C7086; }
+    .terminal-body .string { color: #F9E2AF; }
+    .terminal-body .keyword { color: #CBA6F7; }
+    .terminal-body .output { color: #89B4FA; }
+
+    /* ========== SCREENSHOT MOCK ========== */
+    .screenshot {
+      background: #F1F5F9;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+    .screenshot-bar {
+      background: #E2E8F0;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .screenshot-body {
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* ========== CSV PREVIEW ========== */
+    .csv-preview {
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 16px 0;
+      border: 2px solid var(--border);
+    }
+    .csv-preview table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .csv-preview th {
+      background: var(--primary);
+      color: #fff;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .csv-preview td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+    .csv-preview tr:nth-child(even) td { background: #F8FAFC; }
+
+    /* ========== FILE TREE ========== */
+    .file-tree {
+      background: #1E1E2E;
+      color: #CDD6F4;
+      padding: 16px 20px;
+      border-radius: 10px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 13px;
+      line-height: 2;
+      margin: 16px 0;
+    }
+    .file-tree .folder { color: #89B4FA; }
+    .file-tree .file { color: #A6E3A1; }
+    .file-tree .new { color: #F9E2AF; }
+
+    /* ========== FIGMA MOCKUP ========== */
+    .figma-mock {
+      background: #2C2C2C;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .figma-toolbar {
+      background: #383838;
+      border-radius: 6px;
+      padding: 8px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #aaa;
+      font-size: 12px;
+    }
+    .figma-canvas {
+      background: #1E1E1E;
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+    .figma-frame {
+      background: #fff;
+      border-radius: 8px;
+      width: 140px;
+      height: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      position: relative;
+    }
+    .figma-frame .f-headline {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .figma-frame .f-desc {
+      font-size: 8px;
+      color: #666;
+      text-align: center;
+    }
+    .figma-frame .f-label {
+      position: absolute;
+      top: -8px;
+      left: 6px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 9px;
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+    .figma-frame.template {
+      border: 2px dashed var(--accent);
+    }
+
+    /* ========== PLUGIN UI MOCK ========== */
+    .plugin-mock {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      max-width: 360px;
+      margin: 16px auto;
+      overflow: hidden;
+    }
+    .plugin-mock-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .plugin-mock-body { padding: 16px; }
+    .plugin-mock-upload {
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+      margin: 8px 0;
+      font-size: 12px;
+      color: #888;
+    }
+    .plugin-mock-upload.done {
+      border-color: var(--success);
+      background: var(--success-light);
+      color: #065F46;
+    }
+    .plugin-mock-btn {
+      display: block;
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+
+    /* ========== INFO BOXES ========== */
+    .info-box {
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    .info-box.tip {
+      background: #ECFDF5;
+      border-left: 4px solid var(--success);
+      color: #065F46;
+    }
+    .info-box.warn {
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent);
+      color: #92400E;
+    }
+    .info-box.info {
+      background: #EFF6FF;
+      border-left: 4px solid #3B82F6;
+      color: #1E40AF;
+    }
+    .info-box strong { display: block; margin-bottom: 4px; }
+
+    /* ========== CHECKLIST ========== */
+    .checklist {
+      list-style: none;
+      margin: 12px 0;
+    }
+    .checklist li {
+      padding: 6px 0 6px 30px;
+      position: relative;
+      font-size: 14px;
+    }
+    .checklist li::before {
+      content: "☐";
+      position: absolute;
+      left: 4px;
+      font-size: 16px;
+    }
+
+    /* ========== SUMMARY TABLE ========== */
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    .summary-table th {
+      background: var(--primary-light);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid var(--primary);
+    }
+    .summary-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ========== FOOTER ========== */
+    .footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-sub);
+      font-size: 13px;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 24px; }
+      .flow-container { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+      .step-header { flex-wrap: wrap; }
+      .figma-frame { width: 110px; height: 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==================== HERO ==================== -->
+<div class="hero">
+  <div class="badge">初心者向けガイド</div>
+  <h1>広告バナー一括生成<br>かんたん手順書</h1>
+  <p>Claude Code のサブエージェントと Figma プラグインを使って、広告バナーを大量生産する方法をゼロから解説します。</p>
+</div>
+
+<div class="container">
+
+<!-- ==================== OVERVIEW ==================== -->
+<div class="section">
+  <h2 class="section-title">全体の流れ</h2>
+  <p>やることは大きく <strong>3ステップ</strong> だけです。</p>
+
+  <div class="flow-container">
+    <div class="flow-box active">
+      <span class="flow-icon">🤖</span>
+      <span class="flow-label">STEP 1</span>
+      <span class="flow-sub">広告コピーを<br>AI に生成させる</span>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">
+      <span class="flow-icon">📄</span>
+      <span class="flow-label">STEP 2</span>
+      <span class="flow-sub">CSVファイルが<br>自動で出来上がる</span>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">
+      <span class="flow-icon">🎨</span>
+      <span class="flow-label">STEP 3</span>
+      <span class="flow-sub">Figma プラグインで<br>バナーを一括生成</span>
+    </div>
+  </div>
+
+  <div class="info-box tip">
+    <strong>ポイント</strong>
+    コードは1行も書きません。Claude Code が全部やってくれます。あなたがやるのは「指示を出す」と「ボタンを押す」だけです。
+  </div>
+</div>
+
+<!-- ==================== PREPARATION ==================== -->
+<div class="section">
+  <h2 class="section-title">事前準備</h2>
+
+  <div class="info-box info">
+    <strong>必要なもの</strong>
+    以下の3つが使える状態にしてください。
+  </div>
+
+  <table class="summary-table">
+    <tr>
+      <th>ツール</th>
+      <th>用途</th>
+      <th>入手方法</th>
+    </tr>
+    <tr>
+      <td><strong>Claude Code</strong></td>
+      <td>広告コピーの自動生成</td>
+      <td>claude.ai/code から利用</td>
+    </tr>
+    <tr>
+      <td><strong>Figma</strong> (無料プランOK)</td>
+      <td>バナーデザインの作成</td>
+      <td>figma.com で登録</td>
+    </tr>
+    <tr>
+      <td><strong>このリポジトリ</strong></td>
+      <td>サブエージェント＆プラグイン</td>
+      <td>既にセットアップ済み！</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ==================== FILE STRUCTURE ==================== -->
+<div class="section">
+  <h2 class="section-title">作成済みファイルの確認</h2>
+  <p>以下のファイルが既にこのリポジトリに入っています。</p>
+
+  <div class="file-tree">
+    <span class="folder">seiya_o_saite/</span><br>
+    ├── <span class="folder">.claude/</span><br>
+    │   └── <span class="folder">agents/</span> &nbsp;&nbsp;&nbsp;<span class="comment">← サブエージェント（AI担当者）の定義</span><br>
+    │       ├── <span class="new">headline-writer.md</span> &nbsp;<span class="comment">← 見出し生成 AI</span><br>
+    │       └── <span class="new">description-writer.md</span> <span class="comment">← 説明文生成 AI</span><br>
+    ├── <span class="folder">figma-banner-plugin/</span> &nbsp;<span class="comment">← Figma プラグイン</span><br>
+    │   ├── <span class="new">manifest.json</span><br>
+    │   ├── <span class="new">code.js</span><br>
+    │   ├── <span class="new">code.ts</span><br>
+    │   └── <span class="new">ui.html</span><br>
+    ├── <span class="file">test_html.html</span><br>
+    ├── <span class="file">test.css</span><br>
+    └── <span class="file">rink.html</span>
+  </div>
+</div>
+
+<!-- ==================================================================== -->
+<!-- ==================== STEP 1 ==================== -->
+<!-- ==================================================================== -->
+<div class="section">
+  <h2 class="section-title">STEP 1 ：広告コピーを生成する</h2>
+
+  <!-- ---- 1-1 ---- -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">1</div>
+      <div class="step-title">Claude Code を開く</div>
+      <div class="step-time">⏱ 30秒</div>
+    </div>
+    <p>ブラウザまたはターミナルで Claude Code を起動し、このリポジトリのフォルダを開きます。</p>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-label">Terminal</span>
+      </div>
+      <div class="terminal-body">
+        <code>
+          <span class="comment"># ターミナルで Claude Code を起動する場合</span><br>
+          <span class="prompt">$</span> cd seiya_o_saite<br>
+          <span class="prompt">$</span> claude<br>
+        </code>
+      </div>
+    </div>
+
+    <div class="info-box tip">
+      <strong>Web版の場合</strong>
+      claude.ai/code にアクセスして、このリポジトリを開けばOKです。
+    </div>
+  </div>
+
+  <!-- ---- 1-2 ---- -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">2</div>
+      <div class="step-title">見出しと説明文を同時に生成する</div>
+      <div class="step-time">⏱ 2〜3分</div>
+    </div>
+
+    <p>Claude Code に以下のように話しかけてください。<br>
+       <strong>「商品名」と「ターゲット」を自分のものに置き換えてください。</strong></p>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-label">Claude Code - あなたが入力する内容</span>
+      </div>
+      <div class="terminal-body">
+        <code>
+<span class="string">headline-writer と description-writer を使って、</span><br>
+<span class="string">以下の広告コピーを作ってください。</span><br>
+<br>
+<span class="string">商品: 沖縄グルメ紹介サイト「ぐう」</span><br>
+<span class="string">ターゲット: 沖縄旅行を計画中の20〜30代</span><br>
+<span class="string">訴求ポイント: 地元民おすすめの隠れた名店が見つかる</span><br>
+        </code>
+      </div>
+    </div>
+
+    <div class="info-box info">
+      <strong>何が起きる？</strong>
+      Claude Code が <strong>2つのサブエージェント</strong>（見出し専門AI・説明文専門AI）を<strong>同時に並列で</strong>起動します。
+      それぞれが独立して作業するので、短時間で品質の高い結果が出ます。
+    </div>
+
+    <div class="screenshot">
+      <div class="screenshot-bar">Claude Code の画面イメージ</div>
+      <div class="screenshot-body" style="text-align:left; padding:16px; font-size:13px; font-family:monospace; line-height:2; background:#1E1E2E; color:#CDD6F4;">
+        <span style="color:#A6E3A1;">🤖 headline-writer を起動中...</span><br>
+        <span style="color:#89B4FA;">🤖 description-writer を起動中...</span><br>
+        <span style="color:#6C7086;">   ├── 見出し 20本を生成中...</span><br>
+        <span style="color:#6C7086;">   ├── 説明文 20本を生成中...</span><br>
+        <span style="color:#F9E2AF;">✅ headlines.csv に書き出しました（20件）</span><br>
+        <span style="color:#F9E2AF;">✅ descriptions.csv に書き出しました（20件）</span><br>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---- 1-3 ---- -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">3</div>
+      <div class="step-title">CSV ファイルを確認する</div>
+      <div class="step-time">⏱ 30秒</div>
+    </div>
+
+    <p>リポジトリのフォルダに2つのCSVファイルが自動生成されます。</p>
+
+    <p style="margin-top:10px; font-weight:600;">headlines.csv の中身（例）</p>
+    <div class="csv-preview">
+      <table>
+        <tr><th>id</th><th>headline</th></tr>
+        <tr><td>1</td><td>地元民が通う沖縄の隠れ名店30選</td></tr>
+        <tr><td>2</td><td>ガイドブックに載らない沖縄グルメ</td></tr>
+        <tr><td>3</td><td>沖縄旅行の食事はここで決まり</td></tr>
+        <tr><td>4</td><td>知る人ぞ知る沖縄ローカル食堂</td></tr>
+        <tr><td>5</td><td>...</td></tr>
+      </table>
+    </div>
+
+    <p style="margin-top:10px; font-weight:600;">descriptions.csv の中身（例）</p>
+    <div class="csv-preview">
+      <table>
+        <tr><th>id</th><th>description</th></tr>
+        <tr><td>1</td><td>観光客が知らない地元の名店を厳選。沖縄在住グルメ通が本当においしいお店だけを集めました。</td></tr>
+        <tr><td>2</td><td>沖縄旅行で絶対に行きたいローカル食堂を完全ガイド。予約なしでもOKなお店を多数掲載。</td></tr>
+        <tr><td>3</td><td>...</td></tr>
+      </table>
+    </div>
+
+    <div class="info-box tip">
+      <strong>CSVって何？</strong>
+      Excel やスプレッドシートで開けるシンプルなデータファイルです。メモ帳でも開けます。カンマ（,）で区切られたテキストデータです。
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================================== -->
+<!-- ==================== STEP 2 ==================== -->
+<!-- ==================================================================== -->
+<div class="section">
+  <h2 class="section-title">STEP 2：Figma でテンプレートを用意する</h2>
+
+  <!-- ---- 2-1 ---- -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">4</div>
+      <div class="step-title">Figma を開いてテンプレートを作る</div>
+      <div class="step-time">⏱ 5〜10分</div>
+    </div>
+
+    <p>Figma で新しいファイルを作成し、バナーのテンプレートとなる <strong>フレーム</strong> を1つ作ります。</p>
+
+    <div class="info-box warn">
+      <strong>重要ルール</strong>
+      フレーム内にテキストを<strong>最低2つ</strong>配置してください。<br>
+      ・<strong>フォントサイズが大きい方</strong> → 見出し（headline）として自動認識<br>
+      ・<strong>フォントサイズが小さい方</strong> → 説明文（description）として自動認識
+    </div>
+
+    <p style="margin-top:12px;">テンプレートの例：</p>
+
+    <div class="figma-mock">
+      <div class="figma-toolbar">
+        <span>Figma</span>
+        <span style="margin-left:auto;">Design File</span>
+      </div>
+      <div class="figma-canvas" style="justify-content: center;">
+        <div class="figma-frame template" style="width: 280px; height: 160px; padding: 20px;">
+          <div class="f-label" style="position:absolute; top:-10px; left:8px; background:#F59E0B; color:#fff; font-size:10px; padding:2px 8px; border-radius:4px;">テンプレート（これを選択）</div>
+          <div style="background:#EDE9FE; border-radius:6px; padding:6px 10px; margin-bottom:8px; width:100%;">
+            <div style="font-size:18px; font-weight:800; color:#1a1a1a; text-align:center;">見出しテキスト</div>
+            <div style="font-size:9px; color:#888; text-align:center;">↑ フォントサイズ大 = 見出し</div>
+          </div>
+          <div style="background:#F0FDF4; border-radius:6px; padding:6px 10px; width:100%;">
+            <div style="font-size:11px; color:#333; text-align:center;">説明文テキストがここに入ります</div>
+            <div style="font-size:9px; color:#888; text-align:center;">↑ フォントサイズ小 = 説明文</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:12px;">テンプレート作成の手順：</p>
+    <ul class="checklist">
+      <li>Figma で「Frame」ツール (F キー) を選択してフレームを描く</li>
+      <li>「Text」ツール (T キー) で大きめの見出しテキストを配置（例: 36px）</li>
+      <li>「Text」ツール (T キー) で小さめの説明文テキストを配置（例: 14px）</li>
+      <li>背景色や画像など、好きなデザインを追加</li>
+    </ul>
+  </div>
+
+  <!-- ---- 2-2 ---- -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">5</div>
+      <div class="step-title">Figma プラグインを読み込む</div>
+      <div class="step-time">⏱ 1分</div>
+    </div>
+
+    <p>このリポジトリの <code>figma-banner-plugin</code> フォルダをFigmaプラグインとして読み込みます。</p>
+
+    <div style="background:#fff; border:2px solid var(--border); border-radius:10px; margin:16px 0; overflow:hidden;">
+      <div style="background:var(--primary-light); padding:10px 14px; font-size:13px; font-weight:600; color:var(--primary);">Figma での操作手順</div>
+      <div style="padding:16px; font-size:14px; line-height:2.2;">
+        <strong>① メニューを開く</strong><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Figma 左上の「Figma」メニュー →「Plugins」→「Development」→「Import plugin from manifest...」<br><br>
+        <strong>② ファイルを選択</strong><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;ファイル選択ダイアログで、以下のファイルを選びます：<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<code style="background:#F1F5F9; padding:2px 8px; border-radius:4px;">seiya_o_saite/figma-banner-plugin/manifest.json</code><br><br>
+        <strong>③ 完了</strong><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;「Banner Generator」プラグインが登録されます。
+      </div>
+    </div>
+
+    <div class="info-box tip">
+      <strong>1回だけの作業です</strong>
+      プラグインの読み込みは最初の1回だけ。次回からは Plugins メニューから直接起動できます。
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================================== -->
+<!-- ==================== STEP 3 ==================== -->
+<!-- ==================================================================== -->
+<div class="section">
+  <h2 class="section-title">STEP 3：バナーを一括生成する</h2>
+
+  <!-- ---- 3-1 ---- -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">6</div>
+      <div class="step-title">テンプレートを選択してプラグインを起動</div>
+      <div class="step-time">⏱ 30秒</div>
+    </div>
+
+    <p>先ほど作ったテンプレートフレームを<strong>クリックして選択</strong>した状態で、プラグインを起動します。</p>
+
+    <div style="background:#fff; border:2px solid var(--border); border-radius:10px; margin:16px 0; overflow:hidden;">
+      <div style="background:var(--primary-light); padding:10px 14px; font-size:13px; font-weight:600; color:var(--primary);">操作</div>
+      <div style="padding:16px; font-size:14px; line-height:2.2;">
+        <strong>①</strong> Figma キャンバス上で <strong>テンプレートのフレーム</strong> をクリック<br>
+        <strong>②</strong> メニュー →「Plugins」→「Development」→「Banner Generator」
+      </div>
+    </div>
+  </div>
+
+  <!-- ---- 3-2 ---- -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-number">7</div>
+      <div class="step-title">CSVファイルをアップロードして生成</div>
+      <div class="step-time">⏱ 30秒</div>
+    </div>
+
+    <p>プラグインのUIが開くので、CSVをアップロードして「バナーを生成」をクリック。</p>
+
+    <!-- Plugin UI Mock -->
+    <div class="plugin-mock">
+      <div class="plugin-mock-header">🎨 Banner Generator</div>
+      <div class="plugin-mock-body">
+        <div style="font-size:12px; font-weight:600; margin-bottom:4px;">見出しCSV (headlines.csv)</div>
+        <div class="plugin-mock-upload done">
+          ✅ 20件の見出しを読み込みました
+        </div>
+
+        <div style="font-size:12px; font-weight:600; margin-bottom:4px; margin-top:12px;">説明文CSV (descriptions.csv)</div>
+        <div class="plugin-mock-upload done">
+          ✅ 20件の説明文を読み込みました
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:12px;">
+          <div style="flex:1;">
+            <div style="font-size:11px; font-weight:600; margin-bottom:2px;">列数</div>
+            <div style="border:1px solid #ddd; border-radius:4px; padding:6px 8px; font-size:13px;">5</div>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:11px; font-weight:600; margin-bottom:2px;">間隔 (px)</div>
+            <div style="border:1px solid #ddd; border-radius:4px; padding:6px 8px; font-size:13px;">40</div>
+          </div>
+        </div>
+
+        <div class="plugin-mock-btn">バナーを生成</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---- 3-3 ---- -->
+  <div class="step-card" style="border-left-color: var(--success);">
+    <div class="step-header">
+      <div class="step-number" style="background:var(--success);">✓</div>
+      <div class="step-title">完成！バナーが一括生成される</div>
+    </div>
+
+    <p>ボタンを押した瞬間に、テンプレートがCSVの数だけ複製され、テキストが自動差し替えされてグリッド配置されます。</p>
+
+    <div class="figma-mock">
+      <div class="figma-toolbar">
+        <span>Figma - 生成結果イメージ</span>
+      </div>
+      <div class="figma-canvas">
+        <div class="figma-frame template" style="opacity:0.5;">
+          <div class="f-label" style="position:absolute; top:-10px; left:4px; background:#888; color:#fff; font-size:9px; padding:2px 6px; border-radius:3px;">元テンプレ</div>
+          <div class="f-headline">見出しテキスト</div>
+          <div class="f-desc">説明文テキスト</div>
+        </div>
+
+        <div style="width:100%; height:1px;"></div>
+
+        <div class="figma-frame">
+          <div class="f-label" style="position:absolute; top:-10px; left:4px; background:var(--success); color:#fff; font-size:9px; padding:2px 6px; border-radius:3px;">Banner_1</div>
+          <div class="f-headline" style="font-size:10px;">沖縄の隠れ名店30選</div>
+          <div class="f-desc">観光客が知らない名店を厳選...</div>
+        </div>
+        <div class="figma-frame">
+          <div class="f-label" style="position:absolute; top:-10px; left:4px; background:var(--success); color:#fff; font-size:9px; padding:2px 6px; border-radius:3px;">Banner_2</div>
+          <div class="f-headline" style="font-size:10px;">ガイドブック非掲載グルメ</div>
+          <div class="f-desc">沖縄旅行で行きたいローカル...</div>
+        </div>
+        <div class="figma-frame">
+          <div class="f-label" style="position:absolute; top:-10px; left:4px; background:var(--success); color:#fff; font-size:9px; padding:2px 6px; border-radius:3px;">Banner_3</div>
+          <div class="f-headline" style="font-size:10px;">食事はここで決まり</div>
+          <div class="f-desc">地元民おすすめの隠れた名店...</div>
+        </div>
+        <div class="figma-frame">
+          <div class="f-label" style="position:absolute; top:-10px; left:4px; background:var(--success); color:#fff; font-size:9px; padding:2px 6px; border-radius:3px;">Banner_4</div>
+          <div class="f-headline" style="font-size:10px;">ローカル食堂ガイド</div>
+          <div class="f-desc">予約なしでOKなお店を多数...</div>
+        </div>
+        <div class="figma-frame">
+          <div class="f-label" style="position:absolute; top:-10px; left:4px; background:var(--success); color:#fff; font-size:9px; padding:2px 6px; border-radius:3px;">Banner_5</div>
+          <div class="f-headline" style="font-size:10px;">沖縄グルメ完全攻略</div>
+          <div class="f-desc">在住グルメ通が厳選した...</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:12px;">20件のCSVなら <strong>5列 × 4行 = 20枚のバナー</strong> が一瞬で並びます。</p>
+  </div>
+</div>
+
+<!-- ==================== TIPS ==================== -->
+<div class="section">
+  <h2 class="section-title">よくある質問・Tips</h2>
+
+  <div class="step-card" style="border-left-color: var(--accent);">
+    <p><strong>Q. 見出しの数と説明文の数が違ったら？</strong></p>
+    <p>少ない方の数に合わせてバナーが生成されます。例：見出し20本、説明文15本なら15枚生成。</p>
+  </div>
+
+  <div class="step-card" style="border-left-color: var(--accent);">
+    <p><strong>Q. 20本以上作りたい場合は？</strong></p>
+    <p>Claude Code に指示する際に「50本作って」と本数を指定すればOKです。</p>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-label">Claude Code</span>
+      </div>
+      <div class="terminal-body">
+        <code>
+<span class="string">headline-writer と description-writer を使って、</span><br>
+<span class="string">見出し50本、説明文50本を作ってください。</span><br>
+<span class="string">商品: ...</span><br>
+        </code>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card" style="border-left-color: var(--accent);">
+    <p><strong>Q. テンプレートのデザインを変えたい</strong></p>
+    <p>Figma のテンプレートフレーム内のデザイン（色・画像・レイアウト）は自由に変更できます。<strong>テキストノードが2つ以上あれば</strong>プラグインは動きます。</p>
+  </div>
+
+  <div class="step-card" style="border-left-color: var(--accent);">
+    <p><strong>Q. 列数と間隔って何？</strong></p>
+    <p>生成されたバナーをどう並べるかの設定です。</p>
+    <ul style="margin-top:8px; margin-left:20px; line-height:2;">
+      <li><strong>列数</strong>: 横に何枚並べるか（デフォルト: 5列）</li>
+      <li><strong>間隔</strong>: バナー同士のスキマ（デフォルト: 40px）</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== APPLICATIONS ==================== -->
+<div class="section">
+  <h2 class="section-title">応用アイデア</h2>
+  <p>同じ仕組みで、こんなことにも使えます：</p>
+
+  <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px; margin-top:16px;">
+    <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+      <div style="font-size:28px; margin-bottom:6px;">📱</div>
+      <div style="font-weight:600; font-size:14px;">SNS投稿画像</div>
+      <div style="font-size:12px; color:#888;">Instagramバナーの量産</div>
+    </div>
+    <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+      <div style="font-size:28px; margin-bottom:6px;">📧</div>
+      <div style="font-weight:600; font-size:14px;">メールバナー</div>
+      <div style="font-size:12px; color:#888;">メルマガのA/Bテスト</div>
+    </div>
+    <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+      <div style="font-size:28px; margin-bottom:6px;">🔍</div>
+      <div style="font-weight:600; font-size:14px;">検索広告</div>
+      <div style="font-size:12px; color:#888;">Google広告のコピー案</div>
+    </div>
+    <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+      <div style="font-size:28px; margin-bottom:6px;">🖥</div>
+      <div style="font-weight:600; font-size:14px;">LPのコピー</div>
+      <div style="font-size:12px; color:#888;">ランディングページの文案</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<div class="footer">
+  <p>参考記事: <a href="https://izanami.dev/post/33bc0c0f-4210-4f5e-90e5-4ee8efe9ac66" target="_blank" style="color:var(--primary);">Claude Code で、広告バナー200本を15分で作るえぐい手順（やってみた）</a></p>
+  <p style="margin-top:8px;">Generated for seiya_o_saite project</p>
+</div>
+
+</div><!-- /container -->
+</body>
+</html>
