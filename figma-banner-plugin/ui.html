@@ -41,6 +41,7 @@
       cursor: pointer;
       transition: border-color 0.2s;
       margin-bottom: 8px;
+      position: relative;
     }
     .file-upload:hover {
       border-color: #18a0fb;
@@ -50,7 +51,13 @@
       background: #f0f8ff;
     }
     .file-upload input[type="file"] {
-      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
     }
     .file-upload-text {
       font-size: 13px;
@@ -283,17 +290,18 @@
 
     // ドラッグ＆ドロップ共通ハンドラ
     function setupDropZone(dropEl, fileInput, onFileLoaded) {
-      dropEl.addEventListener('click', () => fileInput.click());
-
       dropEl.addEventListener('dragover', (e) => {
         e.preventDefault();
         dropEl.classList.add('active');
       });
-      dropEl.addEventListener('dragleave', () => {
-        dropEl.classList.remove('active');
+      dropEl.addEventListener('dragleave', (e) => {
+        if (e.target === dropEl) {
+          dropEl.classList.remove('active');
+        }
       });
       dropEl.addEventListener('drop', (e) => {
         e.preventDefault();
+        dropEl.classList.remove('active');
         const file = e.dataTransfer.files[0];
         if (file && file.name.endsWith('.csv')) {
           readFile(file, onFileLoaded);
