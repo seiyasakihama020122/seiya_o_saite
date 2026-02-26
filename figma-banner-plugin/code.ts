@@ -9,8 +9,16 @@ interface BannerData {
   description: string;
 }
 
+// テンプレートとして使用可能なノードタイプ
+const SUPPORTED_TEMPLATE_TYPES = ["FRAME", "COMPONENT", "INSTANCE", "GROUP"];
+
+// 選択ノードがテンプレートとして使えるかチェック
+function isValidTemplate(node: SceneNode): node is FrameNode | ComponentNode | InstanceNode | GroupNode {
+  return SUPPORTED_TEMPLATE_TYPES.includes(node.type);
+}
+
 // テキストノードをフォントサイズ降順でソートして取得
-function getTextNodesSortedByFontSize(frame: FrameNode): TextNode[] {
+function getTextNodesSortedByFontSize(frame: FrameNode | ComponentNode | InstanceNode | GroupNode): TextNode[] {
   const textNodes: TextNode[] = [];
   frame.findAll((node) => node.type === "TEXT").forEach((node) => {
     textNodes.push(node as TextNode);
@@ -52,16 +60,16 @@ async function generateBanners(
 ): Promise<void> {
   const selection = figma.currentPage.selection;
 
-  if (selection.length === 0 || selection[0].type !== "FRAME") {
+  if (selection.length === 0 || !isValidTemplate(selection[0])) {
     figma.ui.postMessage({
       type: "error",
       message:
-        "テンプレートとなるフレームを1つ選択してください。",
+        "テンプレートとなるフレーム、コンポーネント、またはグループを1つ選択してください。",
     });
     return;
   }
 
-  const template = selection[0] as FrameNode;
+  const template = selection[0] as FrameNode | ComponentNode | InstanceNode | GroupNode;
   const templateWidth = template.width;
   const templateHeight = template.height;
   const startX = template.x;

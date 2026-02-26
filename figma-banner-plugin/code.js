@@ -14,6 +14,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 
 figma.showUI(__html__, { width: 480, height: 520 });
 
+// テンプレートとして使用可能なノードタイプ
+const SUPPORTED_TEMPLATE_TYPES = ["FRAME", "COMPONENT", "INSTANCE", "GROUP"];
+
+// 選択ノードがテンプレートとして使えるかチェック
+function isValidTemplate(node) {
+    return SUPPORTED_TEMPLATE_TYPES.includes(node.type);
+}
+
 // テキストノードをフォントサイズ降順でソートして取得
 function getTextNodesSortedByFontSize(frame) {
     const textNodes = [];
@@ -52,10 +60,10 @@ function loadFontsForNode(textNode) {
 function generateBanners(data, columns, gap) {
     return __awaiter(this, void 0, void 0, function* () {
         const selection = figma.currentPage.selection;
-        if (selection.length === 0 || selection[0].type !== "FRAME") {
+        if (selection.length === 0 || !isValidTemplate(selection[0])) {
             figma.ui.postMessage({
                 type: "error",
-                message: "テンプレートとなるフレームを1つ選択してください。",
+                message: "テンプレートとなるフレーム、コンポーネント、またはグループを1つ選択してください。",
             });
             return;
         }
