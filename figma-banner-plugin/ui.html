@@ -224,16 +224,47 @@
     let headlineData = [];
     let descriptionData = [];
 
-    // CSVパーサー
+    // CSVパーサー（クォート対応）
     function parseCSV(text) {
       const lines = text.trim().split('\n');
       if (lines.length < 2) return [];
 
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      function splitCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (inQuotes) {
+            if (ch === '"' && line[i + 1] === '"') {
+              current += '"';
+              i++;
+            } else if (ch === '"') {
+              inQuotes = false;
+            } else {
+              current += ch;
+            }
+          } else {
+            if (ch === '"') {
+              inQuotes = true;
+            } else if (ch === ',') {
+              result.push(current.trim());
+              current = '';
+            } else {
+              current += ch;
+            }
+          }
+        }
+        result.push(current.trim());
+        return result;
+      }
+
+      const headers = splitCSVLine(lines[0]).map(h => h.toLowerCase());
       const rows = [];
 
       for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim());
+        if (!lines[i].trim()) continue;
+        const values = splitCSVLine(lines[i]);
         const row = {};
         headers.forEach((header, index) => {
           row[header] = values[index] || '';
@@ -250,40 +281,54 @@
       reader.readAsText(file, 'UTF-8');
     }
 
+    // ドラッグ＆ドロップ共通ハンドラ
+    function setupDropZone(dropEl, fileInput, onFileLoaded) {
+      dropEl.addEventListener('click', () => fileInput.click());
+
+      dropEl.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropEl.classList.add('active');
+      });
+      dropEl.addEventListener('dragleave', () => {
+        dropEl.classList.remove('active');
+      });
+      dropEl.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file && file.name.endsWith('.csv')) {
+          readFile(file, onFileLoaded);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          readFile(e.target.files[0], onFileLoaded);
+        }
+      });
+    }
+
     // 見出しCSV
     const headlineFileInput = document.getElementById('headline-file');
     const headlineDrop = document.getElementById('headline-drop');
-
-    headlineDrop.addEventListener('click', () => headlineFileInput.click());
-    headlineFileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        readFile(e.target.files[0], (text) => {
-          headlineData = parseCSV(text);
-          document.getElementById('headline-info').textContent =
-            `${headlineData.length}件の見出しを読み込みました`;
-          headlineDrop.classList.add('active');
-          updatePreview();
-          checkReady();
-        });
-      }
+    setupDropZone(headlineDrop, headlineFileInput, (text) => {
+      headlineData = parseCSV(text);
+      document.getElementById('headline-info').textContent =
+        `${headlineData.length}件の見出しを読み込みました`;
+      headlineDrop.classList.add('active');
+      updatePreview();
+      checkReady();
     });
 
     // 説明文CSV
     const descriptionFileInput = document.getElementById('description-file');
     const descriptionDrop = document.getElementById('description-drop');
-
-    descriptionDrop.addEventListener('click', () => descriptionFileInput.click());
-    descriptionFileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        readFile(e.target.files[0], (text) => {
-          descriptionData = parseCSV(text);
-          document.getElementById('description-info').textContent =
-            `${descriptionData.length}件の説明文を読み込みました`;
-          descriptionDrop.classList.add('active');
-          updatePreview();
-          checkReady();
-        });
-      }
+    setupDropZone(descriptionDrop, descriptionFileInput, (text) => {
+      descriptionData = parseCSV(text);
+      document.getElementById('description-info').textContent =
+        `${descriptionData.length}件の説明文を読み込みました`;
+      descriptionDrop.classList.add('active');
+      updatePreview();
+      checkReady();
     });
 
     // プレビュー更新

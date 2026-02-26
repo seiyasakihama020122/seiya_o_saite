@@ -79,10 +79,6 @@ async function generateBanners(
     return;
   }
 
-  // フォントサイズが一番大きい = 見出し、次に大きい = 説明文
-  const headlineNodeId = textNodes[0].id;
-  const descriptionNodeId = textNodes[1].id;
-
   figma.ui.postMessage({
     type: "progress",
     message: `${data.length}件のバナーを生成中...`,
@@ -101,31 +97,19 @@ async function generateBanners(
     clone.y = startY + rowIndex * (templateHeight + gap);
     clone.name = `Banner_${i + 1}`;
 
-    // テキストノードを探して差し替え
-    const cloneTextNodes = clone.findAll(
-      (node) => node.type === "TEXT"
-    ) as TextNode[];
+    // クローン内のテキストノードをフォントサイズ順でソート
+    const sortedCloneTextNodes = getTextNodesSortedByFontSize(clone);
 
-    for (const textNode of cloneTextNodes) {
-      await loadFontsForNode(textNode);
+    // 見出し（一番大きいフォントサイズ）を差し替え
+    if (sortedCloneTextNodes.length >= 1) {
+      await loadFontsForNode(sortedCloneTextNodes[0]);
+      sortedCloneTextNodes[0].characters = row.headline;
+    }
 
-      // 元のテンプレートのノードIDとの対応で判定
-      // クローンされたノードは元のノードの構造を保持するので
-      // フォントサイズで再判定する
-      const sortedCloneTextNodes =
-        getTextNodesSortedByFontSize(clone);
-
-      if (
-        sortedCloneTextNodes.length >= 1 &&
-        textNode.id === sortedCloneTextNodes[0].id
-      ) {
-        textNode.characters = row.headline;
-      } else if (
-        sortedCloneTextNodes.length >= 2 &&
-        textNode.id === sortedCloneTextNodes[1].id
-      ) {
-        textNode.characters = row.description;
-      }
+    // 説明文（二番目に大きいフォントサイズ）を差し替え
+    if (sortedCloneTextNodes.length >= 2) {
+      await loadFontsForNode(sortedCloneTextNodes[1]);
+      sortedCloneTextNodes[1].characters = row.description;
     }
 
     generatedFrames.push(clone);
